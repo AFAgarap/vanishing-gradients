@@ -9,10 +9,6 @@ by Abien Fred Agarap, Joshua Raphaelle Cruzada, Gabrielle Marie Torres, Ralph Vi
 
 ### Experiment Setup
 
-### Varying activation functions
-
-### Classification layer: Softmax vs. SVM
-
-### Our approach: Gradient revival
+### Our approach: Gradient Noise Addition with Batch Normalization 
 
 ## License
