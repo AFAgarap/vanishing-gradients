@@ -1,4 +1,4 @@
-Avoiding the vanishing gradients problem by gradient self-augmentation
+Avoiding the vanishing gradients problem by adding random noise and batch normalization 
 ===
 
 _by Abien Fred Agarap, Joshua Raphaelle Cruzada, Gabrielle Marie Torres, Ralph Vincent Regalado, Charibeth Cheng, and Arnulfo Azcarraga, PhD_
