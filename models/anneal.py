@@ -140,6 +140,6 @@ def main(arguments):
     print('test accuracy : {}'.format(accuracy.result()))
 
 
-if __name___ == '__main__':
+if __name__ == '__main__':
     arguments = parse_args()
     main(arguments)
