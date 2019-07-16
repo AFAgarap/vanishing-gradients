@@ -10,6 +10,7 @@ import argparse
 import tensorflow as tf
 import time
 
+
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 tf.random.set_seed(42)
 
