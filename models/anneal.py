@@ -6,6 +6,7 @@ from __future__ import print_function
 __version__ = '1.0.0'
 __author__ = 'Abien Fred Agarap'
 
+import argparse
 import tensorflow as tf
 import time
 
@@ -87,28 +88,33 @@ def train(model, loss_fn, dataset, epochs=10):
                     print('Epoch {}/{}. Loss : {}, Accuracy : {}'.format(epoch + 1, epochs, epoch_loss, epoch_accuracy))
 
 
-batch_size = 1024
-epochs = 100
+def main(arguments):
+    batch_size = 1024
+    epochs = 100
 
-(train_features, train_labels), (test_features, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
-train_features = train_features.reshape(-1, 784) / 255.
-train_features += tf.random.normal(stddev=5e-2, mean=0., shape=train_features.shape)
-test_features = test_features.reshape(-1, 784) / 255.
+    (train_features, train_labels), (test_features, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
+    train_features = train_features.reshape(-1, 784) / 255.
+    train_features += tf.random.normal(stddev=5e-2, mean=0., shape=train_features.shape)
+    test_features = test_features.reshape(-1, 784) / 255.
 
-train_labels = tf.keras.utils.to_categorical(train_labels)
-test_labels = tf.keras.utils.to_categorical(test_labels)
+    train_labels = tf.keras.utils.to_categorical(train_labels)
+    test_labels = tf.keras.utils.to_categorical(test_labels)
 
-train_dataset = tf.data.Dataset.from_tensor_slices((train_features, train_labels))
-train_dataset = train_dataset.prefetch(batch_size * 2)
-train_dataset = train_dataset.shuffle(batch_size * 2)
-train_dataset = train_dataset.batch(batch_size, True)
+    train_dataset = tf.data.Dataset.from_tensor_slices((train_features, train_labels))
+    train_dataset = train_dataset.prefetch(batch_size * 2)
+    train_dataset = train_dataset.shuffle(batch_size * 2)
+    train_dataset = train_dataset.batch(batch_size, True)
 
-model = NeuralNet(units=512)
-start_time = time.time()
-train(model, loss_fn, train_dataset, epochs=epochs)
-print('training time : {}'.format(time.time() - start_time))
+    model = NeuralNet(units=512)
+    start_time = time.time()
+    train(model, loss_fn, train_dataset, epochs=epochs)
+    print('training time : {}'.format(time.time() - start_time))
 
-accuracy = tf.metrics.Accuracy()
-accuracy(tf.argmax(model(test_features), 1), tf.argmax(test_labels, 1))
-print('test accuracy : {}'.format(accuracy.result()))
+    accuracy = tf.metrics.Accuracy()
+    accuracy(tf.argmax(model(test_features), 1), tf.argmax(test_labels, 1))
+    print('test accuracy : {}'.format(accuracy.result()))
 
+
+if __name___ == '__main__':
+    arguments = parse_args()
+    main(arguments)
