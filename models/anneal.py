@@ -100,6 +100,8 @@ def parse_args():
                        help='the activation function to be used by the network, default is logistic')
     group.add_argument('-n', '--neurons', required=False, default=512, type=int,
                        help='the number of neurons in the network, default is 512')
+    arguments = parser.parse_args()
+    return arguments
 
 
 def main(arguments):
