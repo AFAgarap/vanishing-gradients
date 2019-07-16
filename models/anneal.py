@@ -57,7 +57,7 @@ def plot_gradients(gradients, step):
 
 def train(model, loss_fn, dataset, epochs=10):
 
-    writer = tf.summary.create_file_writer('tmp/{}-swish-injection-fashion_mnist'.format(time.asctime()))
+    writer = tf.summary.create_file_writer('tmp/{}'.format(time.asctime()))
 
     with writer.as_default():
         with tf.summary.record_if(True):
