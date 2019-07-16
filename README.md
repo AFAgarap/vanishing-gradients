@@ -48,6 +48,8 @@ We trained our neural networks using SGD with Momentum (learning rate = 3e-4, an
 |GNA|Swish|90.92% (+ 0.97%)|
 |*GNA + BatchNorm*|*Swish*|*91.03% (+1.08%)*|
 
+**Table 1. Test accuracy of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) models on the MNIST dataset.**
+
 ![](assets/training-accuracy.png)
 
 **Figure 2. Training accuracy over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) models on the MNIST dataset.**
