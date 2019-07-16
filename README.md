@@ -53,7 +53,7 @@ Arguments:
 
 The parameters above are standard for the [baseline model](models/baseline.py), and the experimental models ([gradient noise addition](models/anneal.py), [gradient noise addition + batch norm](models/anneal-bn.py)).
 
-The following are the parameters accepted by `activation`
+The following are the parameters accepted by `activation` parameter.
 
 ```buildoutcfg
 logistic
