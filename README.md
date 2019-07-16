@@ -28,8 +28,36 @@ As we can see from the figure above, the gradient distribution of the model at h
 
 ### Classification Performance
 
-![](assets/training-loss.png)
+We trained our neural networks using SGD with Momentum (learning rate = 3e-4, and momentum = 0.9$) on the perturbed MNIST dataset for 100 epochs with mini-batch of 1024. Our networks consist of two hidden layers with 512 units each, and with Xavier initialization for their weights. The training accuracy values of the baseline and experimental models with varying activation functions are given in Figure 2, and their training loss values are given in Figure 3, while their test accuracy values are given in Table 1.
+
+|Model|Activation|Test Accuracy|
+|-----|----------|-------------|
+|Baseline|Logistic|65.12%|
+|GNA|Logistic|75.05% (+9.93%)|
+|*GNA + BatchNorm*|*Logistic*|*76.37% (+11.25%)*|
+|Baseline|TanH|91.12%|
+|GNA|TanH|91.61% (+0.49%)|
+|*GNA + BatchNorm*|*TanH*|*91.81% (+0.69%)*|
+|Baseline|ReLU|91.62%|
+|GNA|ReLU|92.37% (+0.75%)|
+|*GNA + BatchNorm*|*ReLU*|*92.49% (+0.87%)*|
+|Baseline|Leaky ReLU|91.38%|
+|GNA|Leaky ReLU|92.02% (+0.64%)|
+|*GNA + BatchNorm*|*Leaky ReLU*|*92.12% (+0.74%)*|
+|Baseline|Swish|89.95%|
+|GNA|Swish|90.92% (+ 0.97%)|
+|*GNA + BatchNorm*|*Swish*|*91.03% (+1.08%)*|
 
 ![](assets/training-accuracy.png)
+
+**Figure 2. Training accuracy over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) models on the MNIST dataset.**
+
+![](assets/training-loss.png)
+
+**Figure 3. Training loss over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) models on the MNIST dataset.**
+
+We can infer from these results that the consensus among the models is they converge faster and better with gradient noise addition, and with combined gradient noise addition and batch normalization, i.e. as depicted by an early increase in training accuracy values, and by an early decrease in training loss values of the experimental models when compared to their baseline counterparts -- with minimal difference between the two experimental approaches where the latter consistently performed better than the former in the MNIST dataset. Furthermore, our results corroborate the literature and our analysis as to which activation functions perform better than the other, i.e. using the logistic function had the lowest training accuracy and highest training loss in both baseline and experimental configurations while using Swish and hyperbolic tangent improve the model performance by a considerable margin, and best performances were attained with ReLU and Leaky ReLU.
+
+Consequently, with better convergence, the experimental models had higher test accuracy compared to the baseline models as seen in Table 1 -- notably, using our approach of combined gradient noise addition and batch normalization had the highest test accuracy. Finally, the claim on Swish outperforming ReLU did not hold in our results since our neural network had only two layers, whereas their results were on deeper networks having 12 layers like the Transformer model.
 
 ## License
