@@ -29,7 +29,7 @@ class NeuralNet(tf.keras.Model):
         return self.output_layer(activations)
 
 
-def swish(self, z):
+def swish(z):
     return z * tf.nn.sigmoid(z)
 
 
