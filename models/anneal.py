@@ -88,6 +88,19 @@ def train(model, loss_fn, dataset, epochs=10):
                     print('Epoch {}/{}. Loss : {}, Accuracy : {}'.format(epoch + 1, epochs, epoch_loss, epoch_accuracy))
 
 
+def parse_args():
+    parser = argparse.ArgumentParser('Annealing Gradient Noise Addition')
+    group = parser.add_argument_group('Arguments')
+    group.add_argument('-b', '--batch_size', required=False, default=1024, type=int,
+                       help='the number of examples per mini batch, default is 1024.')
+    group.add_argument('-e', '--epochs', required=False, default=100, type=int,
+                       help='the number of passes through the dataset, default is 100.')
+    group.add_argument('-a', '--activation', required=False, default='logistic', type=str,
+                       help='the activation function to be used by the network, default is logistic')
+    group.add_argument('-n', '--neurons', required=False, default=512, type=int,
+                       help='the number of neurons in the network, default is 512')
+
+
 def main(arguments):
     batch_size = 1024
     epochs = 100
