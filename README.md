@@ -84,7 +84,7 @@ As we can see from the figure above, the gradient distribution of the model at h
 
 ### Classification Performance
 
-We trained our neural networks using SGD with Momentum (learning rate = 3e-4, and momentum = 0.9$) on the perturbed MNIST dataset for 100 epochs with mini-batch of 1024. Our networks consist of two hidden layers with 512 units each, and with Xavier initialization for their weights. The training accuracy values of the baseline and experimental models with varying activation functions are given in Figure 2, and their training loss values are given in Figure 3, while their test accuracy values are given in Table 1.
+We trained our neural networks using SGD with Momentum (learning rate = 3e-4, and momentum = 0.9) on the perturbed MNIST dataset for 100 epochs with mini-batch of 1024. Our networks consist of two hidden layers with 512 units each, and with Xavier initialization for their weights. The training accuracy values of the baseline and experimental models with varying activation functions are given in Figure 2, and their training loss values are given in Figure 3, while their test accuracy values are given in Table 1.
 
 |Model|Activation|Test Accuracy|
 |-----|----------|-------------|
