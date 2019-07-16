@@ -15,10 +15,10 @@ tf.random.set_seed(42)
 
 
 class NeuralNet(tf.keras.Model):
-    def __init__(self, units):
+    def __init__(self, units, activation):
         super(NeuralNet, self).__init__()
-        self.hidden_layer_1 = tf.keras.layers.Dense(units=units, activation=self.swish)
-        self.hidden_layer_2 = tf.keras.layers.Dense(units=units, activation=self.swish)
+        self.hidden_layer_1 = tf.keras.layers.Dense(units=units, activation=activation)
+        self.hidden_layer_2 = tf.keras.layers.Dense(units=units, activation=activation)
         self.output_layer = tf.keras.layers.Dense(units=10)
         self.optimizer = tf.optimizers.SGD(learning_rate=3e-4, momentum=9e-1)
 
@@ -102,8 +102,10 @@ def parse_args():
 
 
 def main(arguments):
-    batch_size = 1024
-    epochs = 100
+    batch_size = arguments.batch_size
+    epochs = arguments.epochs
+    neurons = arguments.neurons
+    activation = arguments.activation
 
     (train_features, train_labels), (test_features, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
     train_features = train_features.reshape(-1, 784) / 255.
@@ -118,7 +120,7 @@ def main(arguments):
     train_dataset = train_dataset.shuffle(batch_size * 2)
     train_dataset = train_dataset.batch(batch_size, True)
 
-    model = NeuralNet(units=512)
+    model = NeuralNet(units=neurons, activation=activation)
     start_time = time.time()
     train(model, loss_fn, train_dataset, epochs=epochs)
     print('training time : {}'.format(time.time() - start_time))
