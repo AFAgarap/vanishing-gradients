@@ -107,6 +107,15 @@ def main(arguments):
     neurons = arguments.neurons
     activation = arguments.activation
 
+    activation_list = ['logistic', 'tanh', 'relu', 'leaky_relu', 'swish']
+    assert activation in activation_list, \
+        'Expected [activation] is in [logistic, tanh, relu, leaky_relu, swish]'
+
+    if activation == 'leaky_relu':
+        activation = tf.nn.leaky_relu
+    else:
+        activation = swish
+
     (train_features, train_labels), (test_features, test_labels) = tf.keras.datasets.mnist.load_data()
     train_features = train_features.reshape(-1, 784) / 255.
     train_features += tf.random.normal(stddev=5e-2, mean=0., shape=train_features.shape)
