@@ -6,19 +6,20 @@ from __future__ import print_function
 __version__ = '1.0.0'
 __author__ = 'Abien Fred Agarap'
 
-
+import argparse
 import tensorflow as tf
 import time
+
 
 tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
 tf.random.set_seed(42)
 
 
 class NeuralNet(tf.keras.Model):
-    def __init__(self, units):
+    def __init__(self, units, activation):
         super(NeuralNet, self).__init__()
-        self.hidden_layer_1 = tf.keras.layers.Dense(units=units, activation=self.swish)
-        self.hidden_layer_2 = tf.keras.layers.Dense(units=units, activation=self.swish)
+        self.hidden_layer_1 = tf.keras.layers.Dense(units=units, activation=activation)
+        self.hidden_layer_2 = tf.keras.layers.Dense(units=units, activation=activation)
         self.output_layer = tf.keras.layers.Dense(units=10)
         self.optimizer = tf.optimizers.SGD(learning_rate=3e-4, momentum=9e-1)
 
@@ -28,15 +29,16 @@ class NeuralNet(tf.keras.Model):
         activations = self.hidden_layer_2(activations)
         return self.output_layer(activations)
 
-    def swish(self, z):
-        return z * tf.nn.sigmoid(z)
+
+def swish(z):
+    return z * tf.nn.sigmoid(z)
 
 
 def loss_fn(logits, labels):
     return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
 
 
-def train_step(model, loss, features, labels):
+def train_step(model, loss, features, labels, epoch):
     with tf.GradientTape() as tape:
         logits = model(features)
         train_loss = loss(logits, labels)
@@ -55,7 +57,7 @@ def plot_gradients(gradients, step):
 
 def train(model, loss_fn, dataset, epochs=10):
 
-    writer = tf.summary.create_file_writer('tmp/{}-swish-baseline-fashion_mnist'.format(time.asctime()))
+    writer = tf.summary.create_file_writer('tmp/{}'.format(time.asctime()))
 
     with writer.as_default():
         with tf.summary.record_if(True):
@@ -65,7 +67,7 @@ def train(model, loss_fn, dataset, epochs=10):
                 epoch_accuracy = []
                 for batch_features, batch_labels in dataset:
 
-                    batch_loss, train_gradients = train_step(model, loss_fn, batch_features, batch_labels)
+                    batch_loss, train_gradients = train_step(model, loss_fn, batch_features, batch_labels, epoch)
 
                     accuracy = tf.metrics.Accuracy()
                     accuracy(tf.argmax(model(batch_features), 1), tf.argmax(batch_labels, 1))
@@ -86,28 +88,59 @@ def train(model, loss_fn, dataset, epochs=10):
                     print('Epoch {}/{}. Loss : {}, Accuracy : {}'.format(epoch + 1, epochs, epoch_loss, epoch_accuracy))
 
 
-batch_size = 1024
-epochs = 100
+def parse_args():
+    parser = argparse.ArgumentParser('Baseline model')
+    group = parser.add_argument_group('Arguments')
+    group.add_argument('-b', '--batch_size', required=False, default=1024, type=int,
+                       help='the number of examples per mini batch, default is 1024.')
+    group.add_argument('-e', '--epochs', required=False, default=100, type=int,
+                       help='the number of passes through the dataset, default is 100.')
+    group.add_argument('-a', '--activation', required=False, default='logistic', type=str,
+                       help='the activation function to be used by the network, default is logistic')
+    group.add_argument('-n', '--neurons', required=False, default=512, type=int,
+                       help='the number of neurons in the network, default is 512')
+    arguments = parser.parse_args()
+    return arguments
 
-(train_features, train_labels), (test_features, test_labels) = tf.keras.datasets.fashion_mnist.load_data()
-train_features = train_features.reshape(-1, 784) / 255.
-train_features += tf.random.normal(stddev=5e-2, mean=0., shape=train_features.shape)
-test_features = test_features.reshape(-1, 784) / 255.
 
-train_labels = tf.keras.utils.to_categorical(train_labels)
-test_labels = tf.keras.utils.to_categorical(test_labels)
+def main(arguments):
+    batch_size = arguments.batch_size
+    epochs = arguments.epochs
+    neurons = arguments.neurons
+    activation = arguments.activation
 
-train_dataset = tf.data.Dataset.from_tensor_slices((train_features, train_labels))
-train_dataset = train_dataset.prefetch(batch_size * 2)
-train_dataset = train_dataset.shuffle(batch_size * 2)
-train_dataset = train_dataset.batch(batch_size, True)
+    activation_list = ['logistic', 'tanh', 'relu', 'leaky_relu', 'swish']
+    assert activation in activation_list, \
+        'Expected [activation] is in [logistic, tanh, relu, leaky_relu, swish]'
 
-model = NeuralNet(units=512)
-start_time = time.time()
-train(model, loss_fn, train_dataset, epochs=epochs)
-print('training time : {}'.format(time.time() - start_time))
+    if activation == 'leaky_relu':
+        activation = tf.nn.leaky_relu
+    else:
+        activation = swish
 
-accuracy = tf.metrics.Accuracy()
-accuracy(tf.argmax(model(test_features), 1), tf.argmax(test_labels, 1))
-print('test accuracy : {}'.format(accuracy.result()))
+    (train_features, train_labels), (test_features, test_labels) = tf.keras.datasets.mnist.load_data()
+    train_features = train_features.reshape(-1, 784) / 255.
+    train_features += tf.random.normal(stddev=5e-2, mean=0., shape=train_features.shape)
+    test_features = test_features.reshape(-1, 784) / 255.
 
+    train_labels = tf.keras.utils.to_categorical(train_labels)
+    test_labels = tf.keras.utils.to_categorical(test_labels)
+
+    train_dataset = tf.data.Dataset.from_tensor_slices((train_features, train_labels))
+    train_dataset = train_dataset.prefetch(batch_size * 2)
+    train_dataset = train_dataset.shuffle(batch_size * 2)
+    train_dataset = train_dataset.batch(batch_size, True)
+
+    model = NeuralNet(units=neurons, activation=activation)
+    start_time = time.time()
+    train(model, loss_fn, train_dataset, epochs=epochs)
+    print('training time : {}'.format(time.time() - start_time))
+
+    accuracy = tf.metrics.Accuracy()
+    accuracy(tf.argmax(model(test_features), 1), tf.argmax(test_labels, 1))
+    print('test accuracy : {}'.format(accuracy.result()))
+
+
+if __name__ == '__main__':
+    arguments = parse_args()
+    main(arguments)
