@@ -28,8 +28,9 @@ class NeuralNet(tf.keras.Model):
         activations = self.hidden_layer_2(activations)
         return self.output_layer(activations)
 
-    def swish(self, z):
-        return z * tf.nn.sigmoid(z)
+
+def swish(self, z):
+    return z * tf.nn.sigmoid(z)
 
 
 def loss_fn(logits, labels):
