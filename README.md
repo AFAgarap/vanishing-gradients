@@ -7,6 +7,62 @@ _by Abien Fred Agarap, Joshua Raphaelle Cruzada, Gabrielle Marie Torres, Ralph V
 
 The vanishing gradients problem is a problem that occurs in training neural networks with gradient-based learning methods and backpropagation -- the gradients will decrease to infinitesimally small values, thus preventing any update on the weights of a model. Since its discovery, several methods have been proposed to solve it. However, there have only been few attempts to compare them from both mathematical and empirical perspectives, thus the purpose of this work. We provide analyses through inspection of analytical gradients and their distribution, and classification performance of the neural networks. We also propose a novel method of adding Gaussian noise to gradients during training, coupled with batch normalization -- aimed to avoid the vanishing gradients problem. Our results show that using this approach, a neural net enjoys faster and better convergence -- having 11.25% higher test accuracy when compared to a baseline model.
 
+## Usage
+
+First, clone the repository.
+
+```buildoutcfg
+$ git clone https://github.com/afagarap/vanishing-gradients.git/
+```
+
+Then, we advise to make a virtual environment for installing TensorFlow 2.0
+
+```
+$ virtualenv tf2 --python=python3
+```
+
+Activate the virtual environment, and install TensorFlow 2.0
+
+```buildoutcfg
+$ source tf2/activate
+$ pip install tensorflow==2.0.0-beta0
+```
+
+To run a model, refer to the following manual on parameters.
+
+```buildoutcfg
+usage: Annealing Gradient Noise Addition [-h] [-b BATCH_SIZE] [-e EPOCHS]
+                                         [-a ACTIVATION] [-n NEURONS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+Arguments:
+  -b BATCH_SIZE, --batch_size BATCH_SIZE
+                        the number of examples per mini batch, default is
+                        1024.
+  -e EPOCHS, --epochs EPOCHS
+                        the number of passes through the dataset, default is
+                        100.
+  -a ACTIVATION, --activation ACTIVATION
+                        the activation function to be used by the network,
+                        default is logistic
+  -n NEURONS, --neurons NEURONS
+                        the number of neurons in the network, default is 512
+```
+
+The parameters above are standard for the [baseline model](models/baseline.py), and the experimental models ([gradient noise addition](models/anneal.py), [gradient noise addition + batch norm](models/anneal-bn.py)).
+
+The following are the parameters accepted by `activation`
+
+```buildoutcfg
+logistic
+tanh
+relu
+leaky_relu
+swish
+```
+
 ## Results
 
 In our experiments, we used the MNIST handwritten digits classification dataset for training and evaluating our neural networks. It consists of 60,000 training examples, and 10,000 test examples -- having 28x28 pixels per image in grayscale. We reshaped each image to 784-dimensional vector, scaled them by dividing each pixel with the maximum pixel value, and added random noise from Gaussian distribution having 0 mean and 0.05 standard deviation to prevent models from overfitting and
