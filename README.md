@@ -34,19 +34,19 @@ We trained our neural networks using SGD with Momentum (learning rate = 3e-4, an
 |-----|----------|-------------|
 |Baseline|Logistic|65.12%|
 |GNA|Logistic|75.05% (+9.93%)|
-|*GNA + BatchNorm*|*Logistic*|*76.37% (+11.25%)*|
+|**GNA + BatchNorm**|**Logistic**|**76.37% (+11.25%)**|
 |Baseline|TanH|91.12%|
 |GNA|TanH|91.61% (+0.49%)|
-|*GNA + BatchNorm*|*TanH*|*91.81% (+0.69%)*|
+|**GNA + BatchNorm**|**TanH**|**91.81% (+0.69%)**|
 |Baseline|ReLU|91.62%|
 |GNA|ReLU|92.37% (+0.75%)|
-|*GNA + BatchNorm*|*ReLU*|*92.49% (+0.87%)*|
+|**GNA + BatchNorm**|**ReLU**|**92.49% (+0.87%)**|
 |Baseline|Leaky ReLU|91.38%|
 |GNA|Leaky ReLU|92.02% (+0.64%)|
-|*GNA + BatchNorm*|*Leaky ReLU*|*92.12% (+0.74%)*|
+|**GNA + BatchNorm**|**Leaky ReLU**|**92.12% (+0.74%)**|
 |Baseline|Swish|89.95%|
 |GNA|Swish|90.92% (+ 0.97%)|
-|*GNA + BatchNorm*|*Swish*|*91.03% (+1.08%)*|
+|**GNA + BatchNorm**|**Swish**|**91.03% (+1.08%)**|
 
 **Table 1. Test accuracy of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) models on the MNIST dataset.**
 
