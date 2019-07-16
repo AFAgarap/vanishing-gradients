@@ -63,3 +63,21 @@ We can infer from these results that the consensus among the models is they conv
 Consequently, with better convergence, the experimental models had higher test accuracy compared to the baseline models as seen in Table 1 -- notably, using our approach of combined gradient noise addition and batch normalization had the highest test accuracy. Finally, the claim on Swish outperforming ReLU did not hold in our results since our neural network had only two layers, whereas their results were on deeper networks having 12 layers like the Transformer model.
 
 ## License
+
+```
+Gradient noise addition with batch norm
+Copyright (C) 2019  Abien Fred Agarap, Joshua Cruzada, Gabby Torres   
+                                                                       
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+                                                                       
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+                                                                       
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+```
