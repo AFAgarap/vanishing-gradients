@@ -33,10 +33,22 @@ tf.random.set_seed(42)
 class NeuralNet(tf.keras.Model):
     def __init__(self, units, activation):
         super(NeuralNet, self).__init__()
-        self.hidden_layer_1 = tf.keras.layers.Dense(units=units, activation=activation)
-        self.hidden_layer_2 = tf.keras.layers.Dense(units=units, activation=activation)
-        self.batch_norm = tf.keras.layers.BatchNormalization()
-        self.output_layer = tf.keras.layers.Dense(units=10)
+        self.num_layers = kwargs['num_layers']
+        self.neurons = kwargs['neurons']
+        self.hidden_layers = []
+        self.activation = kwargs['activation']
+
+        for index in range(self.num_layers):
+            self.hidden_layers.append(
+                    tf.keras.layers.Dense(
+                        units=self.neurons[index],
+                        activation=self.activation
+                        )
+                    )
+        self.output_layer = tf.keras.layers.Dense(
+                units=kwargs['num_classes'],
+                activation=tf.nn.softmax
+                )
         self.optimizer = tf.optimizers.SGD(learning_rate=3e-4, momentum=9e-1)
 
     @tf.function
