@@ -45,6 +45,7 @@ class NeuralNet(tf.keras.Model):
                         activation=self.activation
                         )
                     )
+        self.batch_norm = tf.keras.layers.BatchNormalization()
         self.output_layer = tf.keras.layers.Dense(
                 units=kwargs['num_classes'],
                 activation=tf.nn.softmax
@@ -63,6 +64,7 @@ class NeuralNet(tf.keras.Model):
                             activations[index - 1]
                             )
                         )
+        activations.append(self.batch_norm(activations[-1]))
         output = self.output_layer(activations[-1])
         return output
 
@@ -170,7 +172,7 @@ def main(arguments):
     model = NeuralNet(
             neurons=[512, 512, 256, 256, 128],
             num_layers=5,
-            activation=tf.nn.sigmoid,
+            activation=activation,
             num_classes=train_labels.shape[1])
     start_time = time.time()
     train(model, loss_fn, train_dataset, epochs=epochs)
