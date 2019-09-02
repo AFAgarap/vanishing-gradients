@@ -31,7 +31,7 @@ tf.random.set_seed(42)
 
 
 class NeuralNet(tf.keras.Model):
-    def __init__(self, units, activation):
+    def __init__(self, **kwargs):
         super(NeuralNet, self).__init__()
         self.num_layers = kwargs['num_layers']
         self.neurons = kwargs['neurons']
