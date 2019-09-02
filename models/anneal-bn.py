@@ -136,8 +136,6 @@ def parse_args():
                        help='the number of passes through the dataset, default is 100.')
     group.add_argument('-a', '--activation', required=False, default='logistic', type=str,
                        help='the activation function to be used by the network, default is logistic')
-    group.add_argument('-n', '--neurons', required=False, default=512, type=int,
-                       help='the number of neurons in the network, default is 512')
     arguments = parser.parse_args()
     return arguments
 
@@ -145,7 +143,6 @@ def parse_args():
 def main(arguments):
     batch_size = arguments.batch_size
     epochs = arguments.epochs
-    neurons = arguments.neurons
     activation = arguments.activation
 
     activation_list = ['logistic', 'tanh', 'relu', 'leaky_relu', 'swish']
@@ -170,7 +167,11 @@ def main(arguments):
     train_dataset = train_dataset.shuffle(batch_size * 2)
     train_dataset = train_dataset.batch(batch_size, True)
 
-    model = NeuralNet(units=neurons, activation=activation)
+    model = NeuralNet(
+            neurons=[512, 512, 256, 256, 128],
+            num_layers=5,
+            activation=tf.nn.sigmoid,
+            num_classes=train_labels.shape[1])
     start_time = time.time()
     train(model, loss_fn, train_dataset, epochs=epochs)
     print('training time : {}'.format(time.time() - start_time))
