@@ -1,5 +1,5 @@
 # Gradient noise addition with batch norm
-# Copyright (C) 2019  Abien Fred Agarap, Joshua Cruzada, Gabby Torres
+# Copyright (C) 2019  Abien Fred Agarap
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
