@@ -1,16 +1,18 @@
-# Copyright 2019 Abien Fred Agarap
+# Gradient noise addition with batch norm
+# Copyright (C) 2019  Abien Fred Agarap
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """Implementation of feed-forward neural net"""
 from __future__ import absolute_import
 from __future__ import division
@@ -52,6 +54,28 @@ class NeuralNet(tf.keras.Model):
             if index == 0:
                 activations.append(self.hidden_layers[index](features))
             else:
-                activations.append(self.hidden_layers[index](activations[index - 1]))
+                activations.append(
+                        self.hidden_layers[index](
+                            activations[index - 1]
+                            )
+                        )
         output = self.output_layer(activations[-1])
         return output
+
+
+def loss_fn(logits, labels):
+    return tf.reduce_mean(
+            tf.nn.softmax_cross_entropy_with_logits(
+                logits=logits,
+                labels=labels
+                )
+            )
+
+
+def train_step(model, loss, features, labels, epoch):
+    with tf.GradientTape() as tape:
+        logits = model(features)
+        train_loss = loss(logits, labels)
+    gradients = tape.gradient(train_loss, model.trainable_variables)
+    model.optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+    return train_loss, gradients
