@@ -53,10 +53,18 @@ class NeuralNet(tf.keras.Model):
 
     @tf.function
     def call(self, batch_features):
-        activations = self.hidden_layer_1(batch_features)
-        activations = self.hidden_layer_2(activations)
-        activations = self.batch_norm(activations)
-        return self.output_layer(activations)
+        activations = []
+        for index in range(self.num_layers):
+            if index == 0:
+                activations.append(self.hidden_layers[index](features))
+            else:
+                activations.append(
+                        self.hidden_layers[index](
+                            activations[index - 1]
+                            )
+                        )
+        output = self.output_layer(activations[-1])
+        return output
 
 
 def swish(z):
