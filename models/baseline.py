@@ -26,23 +26,50 @@ import tensorflow as tf
 import time
 
 
-tf.config.experimental.set_memory_growth(tf.config.experimental.list_physical_devices('GPU')[0], True)
+tf.config.experimental.set_memory_growth(
+        tf.config.experimental.list_physical_devices('GPU')[0],
+        True
+        )
 tf.random.set_seed(42)
 
 
 class NeuralNet(tf.keras.Model):
-    def __init__(self, units, activation):
+    def __init__(self, **kwargs):
         super(NeuralNet, self).__init__()
-        self.hidden_layer_1 = tf.keras.layers.Dense(units=units, activation=activation)
-        self.hidden_layer_2 = tf.keras.layers.Dense(units=units, activation=activation)
-        self.output_layer = tf.keras.layers.Dense(units=10)
-        self.optimizer = tf.optimizers.SGD(learning_rate=3e-4, momentum=9e-1)
+        self.num_layers = kwargs['num_layers']
+        self.neurons = kwargs['neurons']
+        self.hidden_layers = []
+        self.activation = kwargs['activation']
+        for index in range(self.num_layers):
+            self.hidden_layers.append(
+                    tf.keras.layers.Dense(
+                        units=self.neurons[index],
+                        activation=self.activation
+                        )
+                    )
+        self.output_layer = tf.keras.layers.Dense(
+                units=kwargs['num_classes'],
+                activation=tf.nn.softmax
+                )
+        self.optimizer = tf.optimizers.SGD(
+                learning_rate=3e-4,
+                momentum=9e-1
+                )
 
     @tf.function
-    def call(self, batch_features):
-        activations = self.hidden_layer_1(batch_features)
-        activations = self.hidden_layer_2(activations)
-        return self.output_layer(activations)
+    def call(self, features):
+        activations = []
+        for index in range(self.num_layers):
+            if index == 0:
+                activations.append(self.hidden_layers[index](features))
+            else:
+                activations.append(
+                        self.hidden_layers[index](
+                            activations[index - 1]
+                            )
+                        )
+        output = self.output_layer(activations[-1])
+        return output
 
 
 def swish(z):
@@ -50,7 +77,12 @@ def swish(z):
 
 
 def loss_fn(logits, labels):
-    return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels))
+    return tf.reduce_mean(
+            tf.nn.softmax_cross_entropy_with_logits(
+                logits=logits,
+                labels=labels
+                )
+            )
 
 
 def train_step(model, loss, features, labels, epoch):
@@ -65,9 +97,17 @@ def train_step(model, loss, features, labels, epoch):
 def plot_gradients(gradients, step):
     for index, gradient in enumerate(gradients):
         if len(gradient.shape) == 1:
-            tf.summary.histogram('histogram/{}-bias-grad'.format(index), gradient, step)
+            tf.summary.histogram(
+                    'histogram/{}-bias-grad'.format(index),
+                    gradient,
+                    step
+                    )
         elif len(gradient.shape) != 1:
-            tf.summary.histogram('histogram/{}-weights-grad'.format(index), gradient, step)
+            tf.summary.histogram(
+                    'histogram/{}-weights-grad'.format(index),
+                    gradient,
+                    step
+                    )
 
 
 def train(model, loss_fn, dataset, epochs=10):
@@ -82,10 +122,17 @@ def train(model, loss_fn, dataset, epochs=10):
                 epoch_accuracy = []
                 for batch_features, batch_labels in dataset:
 
-                    batch_loss, train_gradients = train_step(model, loss_fn, batch_features, batch_labels, epoch)
+                    batch_loss, train_gradients = train_step(model,
+                                                             loss_fn,
+                                                             batch_features,
+                                                             batch_labels,
+                                                             epoch)
 
                     accuracy = tf.metrics.Accuracy()
-                    accuracy(tf.argmax(model(batch_features), 1), tf.argmax(batch_labels, 1))
+                    accuracy(
+                            tf.argmax(model(batch_features), 1),
+                            tf.argmax(batch_labels, 1)
+                            )
 
                     epoch_loss += batch_loss
                     epoch_accuracy.append(accuracy.result())
@@ -100,7 +147,8 @@ def train(model, loss_fn, dataset, epochs=10):
                 tf.summary.scalar('accuracy', epoch_accuracy, step=step)
 
                 if epoch != 0 and (epoch + 1) % 10 == 0:
-                    print('Epoch {}/{}. Loss : {}, Accuracy : {}'.format(epoch + 1, epochs, epoch_loss, epoch_accuracy))
+                    print('Epoch {}/{}. Loss : {}, Accuracy : {}'.format(
+                        epoch + 1, epochs, epoch_loss, epoch_accuracy))
 
 
 def parse_args():
@@ -112,8 +160,6 @@ def parse_args():
                        help='the number of passes through the dataset, default is 100.')
     group.add_argument('-a', '--activation', required=False, default='logistic', type=str,
                        help='the activation function to be used by the network, default is logistic')
-    group.add_argument('-n', '--neurons', required=False, default=512, type=int,
-                       help='the number of neurons in the network, default is 512')
     arguments = parser.parse_args()
     return arguments
 
@@ -121,7 +167,6 @@ def parse_args():
 def main(arguments):
     batch_size = arguments.batch_size
     epochs = arguments.epochs
-    neurons = arguments.neurons
     activation = arguments.activation
 
     activation_list = ['logistic', 'tanh', 'relu', 'leaky_relu', 'swish']
@@ -146,7 +191,10 @@ def main(arguments):
     train_dataset = train_dataset.shuffle(batch_size * 2)
     train_dataset = train_dataset.batch(batch_size, True)
 
-    model = NeuralNet(units=neurons, activation=activation)
+    model = NeuralNet(neurons=[512, 512, 256, 256, 128],
+                      num_layers=5,
+                      activation=tf.nn.tanh,
+                      num_classes=train_labels.shape[1])
     start_time = time.time()
     train(model, loss_fn, train_dataset, epochs=epochs)
     print('training time : {}'.format(time.time() - start_time))
