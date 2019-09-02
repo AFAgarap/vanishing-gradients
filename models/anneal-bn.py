@@ -52,7 +52,7 @@ class NeuralNet(tf.keras.Model):
         self.optimizer = tf.optimizers.SGD(learning_rate=3e-4, momentum=9e-1)
 
     @tf.function
-    def call(self, batch_features):
+    def call(self, features):
         activations = []
         for index in range(self.num_layers):
             if index == 0:
