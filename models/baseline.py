@@ -158,8 +158,10 @@ def parse_args():
                        help='the number of examples per mini batch, default is 1024.')
     group.add_argument('-e', '--epochs', required=False, default=100, type=int,
                        help='the number of passes through the dataset, default is 100.')
-    group.add_argument('-a', '--activation', required=True, type=str,
-                       help='the activation function to be used by the network, default is logistic')
+    group.add_argument('-a', '--activation', required=False, default='logistic', type=str,
+                       help='the activation function to be used by the network, default is logistic.')
+    group.add_argument('-n', '--neurons', nargs='+', required=True, type=int,
+                       help='the list of number of neurons per hidden layer.')
     arguments = parser.parse_args()
     return arguments
 
@@ -168,6 +170,7 @@ def main(arguments):
     batch_size = arguments.batch_size
     epochs = arguments.epochs
     activation = arguments.activation
+    neurons = arguments.neurons
 
     activation_list = ['logistic', 'tanh', 'relu', 'leaky_relu', 'swish']
     assert activation in activation_list, \
@@ -197,8 +200,8 @@ def main(arguments):
     train_dataset = train_dataset.shuffle(batch_size * 2)
     train_dataset = train_dataset.batch(batch_size, True)
 
-    model = NeuralNet(neurons=[512, 512, 256, 256, 128],
-                      num_layers=5,
+    model = NeuralNet(neurons=neurons,
+                      num_layers=len(neurons),
                       activation=activation,
                       num_classes=train_labels.shape[1])
     start_time = time.time()
