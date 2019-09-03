@@ -153,7 +153,13 @@ def main(arguments):
 
     if activation == 'leaky_relu':
         activation = tf.nn.leaky_relu
-    else:
+    elif activation == 'logistic':
+        activation = tf.nn.sigmoid
+    elif activation == 'tanh':
+        activation = tf.nn.tanh
+    elif activation == 'relu':
+        activation = tf.nn.relu
+    elif activation == 'swish':
         activation = swish
 
     (train_features, train_labels), (test_features, test_labels) = tf.keras.datasets.mnist.load_data()
