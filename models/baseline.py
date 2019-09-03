@@ -158,7 +158,7 @@ def parse_args():
                        help='the number of examples per mini batch, default is 1024.')
     group.add_argument('-e', '--epochs', required=False, default=100, type=int,
                        help='the number of passes through the dataset, default is 100.')
-    group.add_argument('-a', '--activation', required=False, default='logistic', type=str,
+    group.add_argument('-a', '--activation', required=True, type=str,
                        help='the activation function to be used by the network, default is logistic')
     arguments = parser.parse_args()
     return arguments
@@ -175,7 +175,13 @@ def main(arguments):
 
     if activation == 'leaky_relu':
         activation = tf.nn.leaky_relu
-    else:
+    elif activation == 'logistic':
+        activation = tf.nn.sigmoid
+    elif activation == 'tanh':
+        activation = tf.nn.tanh
+    elif activation == 'relu':
+        activation = tf.nn.relu
+    elif activation == 'swish':
         activation = swish
 
     (train_features, train_labels), (test_features, test_labels) = tf.keras.datasets.mnist.load_data()
@@ -193,7 +199,7 @@ def main(arguments):
 
     model = NeuralNet(neurons=[512, 512, 256, 256, 128],
                       num_layers=5,
-                      activation=tf.nn.tanh,
+                      activation=activation,
                       num_classes=train_labels.shape[1])
     start_time = time.time()
     train(model, loss_fn, train_dataset, epochs=epochs)
