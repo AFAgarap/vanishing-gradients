@@ -29,8 +29,9 @@ $ pip install tensorflow==2.0.0-beta0
 To run a model, refer to the following manual on parameters.
 
 ```buildoutcfg
-usage: Annealing Gradient Noise Addition [-h] [-b BATCH_SIZE] [-e EPOCHS]
-                                         [-a ACTIVATION] [-n NEURONS]
+usage: Annealing Gradient Noise Addition with Batch Normalization
+       [-h] [-b BATCH_SIZE] [-e EPOCHS] [-a ACTIVATION] -n NEURONS
+       [NEURONS ...]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -45,8 +46,8 @@ Arguments:
   -a ACTIVATION, --activation ACTIVATION
                         the activation function to be used by the network,
                         default is logistic
-  -n NEURONS, --neurons NEURONS
-                        the number of neurons in the network, default is 512
+  -n NEURONS [NEURONS ...], --neurons NEURONS [NEURONS ...]
+                        the list of number of neurons per hidden layer.
 ```
 
 The parameters above are standard for the [baseline model](models/baseline.py), and the experimental models ([gradient noise addition](models/anneal.py), [gradient noise addition + batch norm](models/anneal-bn.py)).
