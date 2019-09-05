@@ -3,7 +3,7 @@ Avoiding the vanishing gradients problem by adding random noise and batch normal
 
 ## Abstract
 
-The vanishing gradients problem is a problem that occurs in training neural networks with gradient-based learning methods and backpropagation -- the gradients will decrease to infinitesimally small values, thus preventing any update on the weights of a model. Since its discovery, several methods have been proposed to solve it. However, there have only been few attempts to compare them from both mathematical and empirical perspectives, thus the purpose of this work. We provide analyses through inspection of analytical gradients and their distribution, and classification performance of the neural networks. We also propose a simple method of adding Gaussian noise to gradients during training, coupled with batch normalization -- aimed to avoid the vanishing gradients problem. Our results show that using this approach, a neural net enjoys faster and better convergence -- having 11.25% higher test accuracy when compared to a baseline model.
+The vanishing gradients problem is a problem that occurs in training neural networks with gradient-based learning methods and backpropagation -- the gradients will decrease to infinitesimally small values, thus preventing any update on the weights of a model. Since its discovery, several methods have been proposed to solve it. However, there have only been few attempts to compare them from both mathematical and empirical perspectives, thus the purpose of this work. We provide analyses through inspection of analytical gradients and their distribution, and classification performance of the neural networks. We also propose a simple method of adding Gaussian noise to gradients during training, coupled with batch normalization -- aimed to avoid the vanishing gradients problem. Our results show that using this approach, a neural net enjoys faster and better convergence -- having 54.47% higher test accuracy when compared to a baseline model.
 
 ## Usage
 
@@ -64,58 +64,72 @@ swish
 
 ## Results
 
-In our experiments, we used the MNIST handwritten digits classification dataset for training and evaluating our neural networks. It consists of 60,000 training examples, and 10,000 test examples -- having 28x28 pixels per image in grayscale. We reshaped each image to 784-dimensional vector, scaled them by dividing each pixel with the maximum pixel value, and added random noise from Gaussian distribution having 0 mean and 0.05 standard deviation to prevent models from overfitting and
-to elevate the difficulty to converge on the dataset.
+In the experiments that follow, the MNIST handwritten digits classification dataset was used for training and evaluating our neural networks. Each image was reshaped to a 784-dimensional vector, and then normalized by dividing each pixel value with the maximum pixel value (i.e. 255), and added random noise from a Gaussian distribution with a standard deviation of 5e-2 to elevate the difficulty to converge on the dataset.
 
 ### Experiment Setup
 
-Experiments were done in a computer with Intel Core i5-6300HQ processor, 16GB RAM, and Nvidia GeForce 960M GPU with 4GB RAM.
+Experiments were done in a computer with Intel Core i5-6300HQ processor, 16GB RAM, and Nvidia GeForce 960M GPU with 4GB RAM. The random seed used was 42 both in TensorFlow and NumPy.
 
 ### Improving Gradient Values 
 
-We observed the distribution gradients of both baseline and experimental models during training, and the distributions for a neural network with logistic activation function are depicted in Figure 1. Since this _legacy_ activation function has the least maximum gradient value of 0.25, we considered observing the changes in its distribution to be noteworthy.
+During training, we can observe the gradient distributions of a neural network as it learns. In Figure 2, we take a neural network with logistic activation function as an example. Since the logistic activation function has the least maximum gradient value (i.e. 0.25), we can consider observing the changes in its gradient distribution to be noteworthy.
 
-![](assets/mnist-logistic-dist.png)
+![](assets/gradient-distribution.png)
 
 **Figure 1. Gradient distribution over time of neural network with logistic activation function on MNIST dataset. _Top to bottom_: baseline model, model with gradient noise addition, and model with gradient noise addition + batch normalization.**
 
-As we can see from the figure above, the gradient distribution of the model at hand drastically changes from the baseline configuration to the experimental configurations, i.e. from small value of -0.004 to 4. While this does not guarantee superior model performance, it does guarantee that there would be sufficient gradients to propagate through the neural network, thus avoiding the vanishing gradients problem.
+As we can see from the graphs above, the gradient distributions of the model drastically change from the baseline configuration to the experimental configurations, i.e. from considerably small values (+/- 4e-3 for two-layered neural network, and +/- 5e-6 for five-layered neural network) to relatively large values (+/- 4 for both two-layered and five-layered neural networks). While this does not guarantee superior model performance, it does give us an insight that there would be sufficient gradient values to propagate within the neural network, thus avoiding vanishing gradients. We turn to the next subsection to examine the classification performance of the models.
 
 ### Classification Performance
 
-We trained our neural networks using SGD with Momentum (learning rate = 3e-4, and momentum = 0.9) on the perturbed MNIST dataset for 100 epochs with mini-batch of 1024. Our networks consist of two hidden layers with 512 units each, and with Xavier initialization for their weights. The training accuracy values of the baseline and experimental models with varying activation functions are given in Figure 2, and their training loss values are given in Figure 3, while their test accuracy values are given in Table 1.
+The models were trained using stochastic gradient descent (SGD) with Momentum (learning rate α = 3e-4, momentum γ = 9e-1) on the perturbed MNIST dataset for 100 epochs, with mini-batch size of 1024 (for the two-layered neural network), and mini-batch size of 512 (for the five-layered neural network). Our networks consist of (1) two hidden layers with 512 neurons each, and (2) five hidden layers with the following neurons per hidden layer: 512, 512, 256, 256, 128. The weights for both the network architectures were initialized with Xavier initialization.
+We can observe in Figures 3–6 that using the experimental methods, Gradient Noise Addition (GNA) and GNA with Batch Normalization (BN), help the neural net to converge faster and better in terms of loss and accuracy.
 
-|Model|Activation|Test Accuracy|
-|-----|----------|-------------|
-|Baseline|Logistic|65.12%|
-|GNA|Logistic|75.05% (+9.93%)|
-|**GNA + BatchNorm**|**Logistic**|**76.37% (+11.25%)**|
-|Baseline|TanH|91.12%|
-|GNA|TanH|91.61% (+0.49%)|
-|**GNA + BatchNorm**|**TanH**|**91.81% (+0.69%)**|
-|Baseline|ReLU|91.62%|
-|GNA|ReLU|92.37% (+0.75%)|
-|**GNA + BatchNorm**|**ReLU**|**92.49% (+0.87%)**|
-|Baseline|Leaky ReLU|91.38%|
-|GNA|Leaky ReLU|92.02% (+0.64%)|
-|**GNA + BatchNorm**|**Leaky ReLU**|**92.12% (+0.74%)**|
-|Baseline|Swish|89.95%|
-|GNA|Swish|90.92% (+ 0.97%)|
-|**GNA + BatchNorm**|**Swish**|**91.03% (+1.08%)**|
+|Model|Activation|Test Accuracy on 2-layer NN|Test Accuracy on 5-layer NN|
+|-----|----------|---------------------------|---------------------------|
+|Baseline|Logistic|65.12%|10.28%|
+|**GNA**|Logistic|75.05% (+9.93%)|**11.35% (+1.07%)**|
+|**GNA + BatchNorm**|**Logistic**|**76.37% (+11.25%)**|11.35%|
+|Baseline|TanH|91.12%|91.27%|
+|GNA|TanH|91.61% (+0.49%)|91.78% (+0.51%)|
+|**GNA + BatchNorm**|**TanH**|**91.81% (+0.69%)**|**92.15% (+0.88%)**|
+|**Baseline**|ReLU|91.62%|**88.65%**|
+|GNA|ReLU|92.37% (+0.75%)|83.62% (-5.03%)|
+|**GNA + BatchNorm**|**ReLU**|**92.49% (+0.87%)**|84.40% (-4.25%)|
+|Baseline|Leaky ReLU|91.38%|90.43%|
+|GNA|Leaky ReLU|92.02% (+0.64%)|83.34% (-7.09%)|
+|**GNA + BatchNorm**|**Leaky ReLU**|**92.12% (+0.74%)**|**92.39% (+1.88%)**|
+|Baseline|Swish|89.95%|37.18%|
+|GNA|Swish|90.92% (+ 0.97%)|83.10% (+45.92%)|
+|**GNA + BatchNorm**|**Swish**|**91.03% (+1.08%)**|**91.65% (+54.47%)**|
 
-**Table 1. Test accuracy of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) models on the MNIST dataset.**
+**Table 1. Test accuracy of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) 2-layer and 5-layer models on the MNIST dataset.**
 
 ![](assets/training-accuracy.png)
 
-**Figure 2. Training accuracy over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) models on the MNIST dataset.**
+**Figure 2. Training accuracy over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) two-layered neural networks on the MNIST dataset.**
 
 ![](assets/training-loss.png)
 
-**Figure 3. Training loss over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) models on the MNIST dataset.**
+**Figure 3. Training loss over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) two-layered neural networks on the MNIST dataset.**
 
-We can infer from these results that the consensus among the models is they converge faster and better with gradient noise addition, and with combined gradient noise addition and batch normalization, i.e. as depicted by an early increase in training accuracy values, and by an early decrease in training loss values of the experimental models when compared to their baseline counterparts -- with minimal difference between the two experimental approaches where the latter consistently performed better than the former in the MNIST dataset. Furthermore, our results corroborate the literature and our analysis as to which activation functions perform better than the other, i.e. using the logistic function had the lowest training accuracy and highest training loss in both baseline and experimental configurations while using Swish and hyperbolic tangent improve the model performance by a considerable margin, and best performances were attained with ReLU and Leaky ReLU.
+![](assets/training-accuracy-5-layers.png)
 
-Consequently, with better convergence, the experimental models had higher test accuracy compared to the baseline models as seen in Table 1 -- notably, using our approach of combined gradient noise addition and batch normalization had the highest test accuracy. Finally, the claim on Swish outperforming ReLU did not hold in our results since our neural network had only two layers, whereas their results were on deeper networks having 12 layers like the Transformer model.
+**Figure 4. Training accuracy over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) five-layered neural networks on the MNIST dataset.**
+
+![](assets/training-loss-5-layers.png)
+
+**Figure 5. Training loss over time of baseline and experimental (with gradient noise addition, and gradient noise addition + batch normalization) five-layered neural networks on the MNIST dataset.**
+
+From Table 1, we can see the test accuracy values using GNA and GNA+BN drastically improved - most notably on the logistic-based neural network.
+
+We have seen that all the baseline two-layered neural networks improved with GNA and GNA+BN from the results tallied. However, for the five-layered neural networks, the ReLU-based model failed to improve in terms of test accuracy. Furthermore, we can see that the TanH-based neural network had a better test accuracy in this configuration than the ReLU-based model. We can attribute this to the fact that we used Xavier initialization (in which TanH performs optimally) rather than He initialization (in which ReLU performs optimally).
+
+In general, these results on the five-layered neural network support the statement earlier that the inflation of gradient values do not necessarily guarantee superior performance.
+
+But what's interesting here is the drastic improvement of the baseline model with Swish activation function-an increase in test accuracy as high as 54.47%.
+
+Despite the results for the two-layered neural network where the Swish-based model had slightly lower test accuracies than the ReLU- and Leaky RELU-based ones, we can see that for the five-layered neural network, the Swish-based model had a higher test accuracy than the ReLU-based models (but slightly lower than the Leaky ReLU-based model). This somehow corroborates the fact the Swish outperforms ReLU on deeper networks as exhibited by [Ramachandran et al. (2017)](https://arxiv.org/abs/1710.05941v1) on their results for their 12-layer Transformer model.
 
 ## License
 
